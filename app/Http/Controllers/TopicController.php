@@ -29,14 +29,12 @@ class TopicController extends Controller
             'topic_slug' => 'required|string|unique:topics',
         ]);
     
-        $topic = Topic::create($validated);
-
-        
-        foreach ($validated as $field) {
-            if (!$request->has($field)) {
-                return response()->json(['error' => ucfirst(str_replace('_', ' ', $field)) . " is requrird, please insert this field"], 400);
+        foreach ($validated as $key=> $field){
+            if (!$request->has($key)) {
+                return response()->json(['error' => ucfirst(str_replace('_', ' ', $key)) . " is required, please insert this field"], 400);
             }
         }
+        $topic = Topic::create($validated);
     
         return response()->json([
             'message' => 'topic created successfully',
@@ -67,13 +65,12 @@ class TopicController extends Controller
         'topic_slug' => 'string|unique:topics,topic_slug,' . $topic->id,
     ]);
 
-    $topic->update($validated);
-
-    foreach ($validated as $field) {
-        if (!$request->has($field)) {
-            return response()->json(['error' => ucfirst(str_replace('_', ' ', $field)) . " is requrird, please insert this field"], 400);
+    foreach ($validated as $key=>$field) {
+        if (!$request->has($key)) {
+            return response()->json(['error' => ucfirst(str_replace('_', ' ', $key)) . " is required, please insert this field"], 400);
         }
     }
+    $topic->update($validated);
     
     return response()->json([
         'message' => 'topic updated successfully',
