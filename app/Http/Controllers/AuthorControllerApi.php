@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
+use App\Models\Author;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class PostControllerApi extends Controller
+class AuthorControllerApi extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // Fetch all posts with their relationships
-        $posts = Post::with(['topic', 'author'])->get();
+        // Fetch all authors
+        $authors = Author::all();
 
         return response()->json([
             'status' => 200,
-            'data' => $posts,
+            'data' => $authors,
         ]);
     }
 
@@ -29,11 +29,10 @@ class PostControllerApi extends Controller
     {
         // Validate the request
         $validator = Validator::make($request->all(), [
-            'topic_id' => 'required|exists:topics,id',
-            'title' => 'required|string|max:255',
-            'description' => 'required',
-            'author_id' => 'required|exists:users,id',
-            'status' => 'boolean',
+            'author_name' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'email' => 'required|email|unique:authors,email',
+            'password' => 'required|min:8',
         ]);
 
         if ($validator->fails()) {
@@ -43,13 +42,19 @@ class PostControllerApi extends Controller
             ], 422);
         }
 
-        // Create a new post
-        $post = Post::create($validator->validated());
+        // Handle image upload
+        $data = $validator->validated();
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('authors', 'public');
+        }
+
+        // Create a new author
+        $author = Author::create($data);
 
         return response()->json([
             'status' => 201,
-            'message' => 'Post created successfully.',
-            'data' => $post,
+            'message' => 'Author created successfully.',
+            'data' => $author,
         ]);
     }
 
@@ -58,19 +63,19 @@ class PostControllerApi extends Controller
      */
     public function show(string $id)
     {
-        // Fetch a specific post with its relationships
-        $post = Post::with(['topic', 'author'])->find($id);
+        // Fetch the author
+        $author = Author::find($id);
 
-        if (!$post) {
+        if (!$author) {
             return response()->json([
                 'status' => 404,
-                'message' => 'Post not found.',
+                'message' => 'Author not found.',
             ], 404);
         }
 
         return response()->json([
             'status' => 200,
-            'data' => $post,
+            'data' => $author,
         ]);
     }
 
@@ -79,23 +84,22 @@ class PostControllerApi extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Fetch the post
-        $post = Post::find($id);
+        // Fetch the author
+        $author = Author::find($id);
 
-        if (!$post) {
+        if (!$author) {
             return response()->json([
                 'status' => 404,
-                'message' => 'Post not found.',
+                'message' => 'Author not found.',
             ], 404);
         }
 
         // Validate the request
         $validator = Validator::make($request->all(), [
-            'topic_id' => 'sometimes|exists:topics,id',
-            'title' => 'sometimes|string|max:255',
-            'description' => 'sometimes',
-            'author_id' => 'sometimes|exists:users,id',
-            'status' => 'sometimes|boolean',
+            'author_name' => 'sometimes|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'email' => 'sometimes|email|unique:authors,email,' . $author->id,
+            'password' => 'sometimes|min:8',
         ]);
 
         if ($validator->fails()) {
@@ -105,13 +109,19 @@ class PostControllerApi extends Controller
             ], 422);
         }
 
-        // Update the post
-        $post->update($validator->validated());
+        // Handle image upload
+        $data = $validator->validated();
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('authors', 'public');
+        }
+
+        // Update the author
+        $author->update($data);
 
         return response()->json([
             'status' => 200,
-            'message' => 'Post updated successfully.',
-            'data' => $post,
+            'message' => 'Author updated successfully.',
+            'data' => $author,
         ]);
     }
 
@@ -120,22 +130,22 @@ class PostControllerApi extends Controller
      */
     public function destroy(string $id)
     {
-        // Fetch the post
-        $post = Post::find($id);
+        // Fetch the author
+        $author = Author::find($id);
 
-        if (!$post) {
+        if (!$author) {
             return response()->json([
                 'status' => 404,
-                'message' => 'Post not found.',
+                'message' => 'Author not found.',
             ], 404);
         }
 
-        // Delete the post
-        $post->delete();
+        // Delete the author
+        $author->delete();
 
         return response()->json([
             'status' => 200,
-            'message' => 'Post deleted successfully.',
+            'message' => 'Author deleted successfully.',
         ]);
     }
 }
