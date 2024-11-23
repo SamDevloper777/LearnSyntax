@@ -26,8 +26,8 @@ class CoursesController extends Controller
     $validator = Validator::make($request->all(), [
         'title' => 'required|string',
             'description' => 'required|max:225',
-            'image' => 'nullable', 
-            'course_slug' => 'required|string|unique:courses,course_slug,' 
+            'image' => 'nullable',
+            'course_slug' => 'required|string|unique:courses,course_slug,'
     ]);
 
     if ($validator->fails()) {
@@ -37,10 +37,10 @@ class CoursesController extends Controller
         ], 422);
     }
 
-    
+
     $validated = $validator->validated();
 
-    
+
     $courses = Courses::create($validated);
 
     return response()->json([
@@ -59,39 +59,47 @@ class CoursesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request,Courses $id)
-    {
-        return $request->all();
-       
-        $courses = Courses::findOrFail($id);
-    
-        // return $courses;
-        $validator = Validator::make($request->all(), [
-                'title' => 'required|string',
-                'description' => 'required|max:225',
-                'image' => 'nullable', 
-                'course_slug' => 'required|string|unique:courses,course_slug,' 
-        ]);
-    
-        
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages(),
-            ], 422);
-        }
-    
-       
-        $courses->update($validator->validated());
-    
-       
+    public function update(Request $request, $id)
+{
+    // Debug: Check if the request data is received correctly
+    if (empty($request->all())) {
         return response()->json([
-            'status' => 200,
-            'message' => 'Course updated successfully',
-            'data' => $courses,
-        ]);
+            'status' => 400,
+            'message' => 'No data received. Ensure you are sending data correctly.',
+        ], 400);
     }
-    
+
+    // Retrieve the course by ID
+    $courses = Courses::findOrFail($id);
+
+    // Validate the request
+    $validator = Validator::make($request->all(), [
+        'title' => 'required|string',
+        'description' => 'required|max:225',
+        'image' => 'nullable',
+        'course_slug' => 'required|string|unique:courses,course_slug,' . $courses->id,
+    ]);
+
+    // Check for validation errors
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 422,
+            'errors' => $validator->messages(),
+        ], 422);
+    }
+
+    // Update the course with validated data
+    $courses->update($validator->validated());
+
+    return response()->json([
+        'status' => 200,
+        'message' => 'Course updated successfully',
+        'data' => $courses,
+    ]);
+}
+
+
+
 
     /**
      * Remove the specified resource from storage.
