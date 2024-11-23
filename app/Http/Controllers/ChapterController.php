@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Chapter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ChapterController extends Controller
 {
@@ -19,33 +20,34 @@ class ChapterController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'course_id' => 'required|exists:course_id',
-            'chapter_name' =>'required|string',
-            'chapter_description' =>'required|string',
-            'chapter_slug'=>'required|string|unique:chapters',
-            'order'=>'required',
-        ]);
-       
-        foreach ($data as $key => $field) {
-            if (!$request->has($key)) {
-                return response()->json(['$chapters' => ucfirst(str_replace('_', ' ', $key)) . 
-                " is required, please insert this field"], 400);
-            }
-        }
-        $chapters = Chapter::create($data);
-       
+{
+    $validator = Validator::make($request->all(), [
+        'course_id' => 'required|exists:courses,id',
+        'chapter_name' => 'required|string',
+        'chapter_description' => 'required|string',
+        'chapter_slug' => 'required|string|unique:chapters,chapter_slug', 
+        'order' => 'required|integer', 
+    ]);
 
+    if ($validator->fails()) {
         return response()->json([
-            'message' => 'Chapter created successfully',
-            'chapters' => $chapters
-        ], 200);
-
-        
-
-        
+            'status' => 422,
+            'errors' => $validator->messages(),
+        ], 422);
     }
+
+    
+    $validated = $validator->validated();
+
+    
+    $chapter = Chapter::create($validated);
+
+    return response()->json([
+        'message' => 'Chapter created successfully',
+        'chapter' => $chapter,
+    ], 201);
+}
+
 
     /**
      * Display the specified resource.
