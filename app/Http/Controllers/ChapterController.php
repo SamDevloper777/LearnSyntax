@@ -93,6 +93,9 @@ class ChapterController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $chapter = Chapter::findOrFail($id);
+        $chapter->delete();
+
+        return response()->json(['message' => 'Chapter deleted successfully.']);
     }
 }
