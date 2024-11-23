@@ -26,33 +26,24 @@ class CoursesController extends Controller
             'title'=> 'required|string',
             'description'=>'required|max:225',
             'image'=>'nullable',
-            'course_slug' => 'required|string|unique:courses',
-        ]
+            'course_slug' => 'required|string',
+        ]);
 
-        );
-
-
-        try{
-            $course = new Courses();
-            $course->title=$request->title;
-            $course->description= $request->description;
-           
-            $courses->save();
-           
+        
+        foreach ($data as $key => $field) {
+            if (!$request->has($key)) {
+                return response()->json(['error' => ucfirst(str_replace('_', ' ', $key)) . " is requrird, please insert this field"], 400);
+            }
         }
-        $courses = Courses::create($data);
-
+        
+        $courses=courses::create($data);
+           
         return response()->json([
-            'message' => 'Product created successfully',
-            'brands' => $brands
-        ], 200);
-    } catch(){
-        return response(\Exeption $e)->json([
-            'message' => 'Product created successfully',
-            'error' => $e->getMessage()->fe4
+            'message' => 'Courses created successfully',
+            'brands' => $courses
         ], 200);
     }
-       
+
     /**
      * Display the specified resource.
      */
@@ -66,7 +57,6 @@ class CoursesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
