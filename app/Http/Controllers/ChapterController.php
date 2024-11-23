@@ -60,30 +60,32 @@ class ChapterController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request,  $id)
     {
-        $chapters = Chapter::findOrFail($id);
+        $chapter = Chapter::findOrFail($id);
 
-        $data = $request->validate([
+        $validator = Validator::make($request->all(),[
             'course_id' => 'required|exists:course_id',
             'chapter_name' => 'required|string',
             'chapter_description' => 'required|string',
             'chapter_slug' => 'required|string|unique:chapters,chapter_slug',
             'order' => 'integer',
         ]);
-
-        $chapters->update($data);
-
-        foreach ($data as $key => $field) {
-            if (!$request->has ($key)) {
-                return response()->json(['$chapters' => ucfirst(str_replace('_', ' ', $key)) .
-                    " is requrird, please insert this field"], 400);
-            }
-        }
+        
+        // Check for validation errors
+    if ($validator->fails()) {
         return response()->json([
+            'status' => 422,
+            'errors' => $validator->messages(),
+        ], 422);
+    }
+        $chapter->update($validator->validated());
+
+        return response()->json([
+            'status' => 200,
             'message' => 'Chapter updated successfully',
-            'chapters' => $chapters
-        ], 200);
+            'data' => $chapter,
+        ]);
 
     }
 
