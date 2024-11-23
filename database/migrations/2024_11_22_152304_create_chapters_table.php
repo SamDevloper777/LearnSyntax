@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('chapter_name');
             $table->text('chapter_description');
             $table->string('chapter_slug')->unique();
+            $table->integer('order');
             $table->timestamps();
         });
     }
