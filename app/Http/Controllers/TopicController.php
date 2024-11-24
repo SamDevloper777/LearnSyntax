@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Topic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use PhpParser\Node\Stmt\Foreach_;
 
 class TopicController extends Controller
@@ -28,14 +29,14 @@ class TopicController extends Controller
             'topic_description' => 'nullable|string',
             'topic_slug' => 'required|string|unique:topics',
         ]);
-    
-        foreach ($validated as $key=> $field){
+
+        foreach ($validated as $key => $field) {
             if (!$request->has($key)) {
                 return response()->json(['error' => ucfirst(str_replace('_', ' ', $key)) . " is required, please insert this field"], 400);
             }
         }
         $topic = Topic::create($validated);
-    
+
         return response()->json([
             'message' => 'topic created successfully',
             'topic' => $topic
@@ -55,29 +56,41 @@ class TopicController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $topic = Topic::findOrFail($id);
+        // Fetch the post
+        $topic = Topic::find($id);
 
-    $validated = $request->validate([
-        'chapter_id' => 'exists:chapters,id',
-        'topic_name' => 'string',
-        'order' => 'integer',
-        'topic_description' => 'string',
-        'topic_slug' => 'string|unique:topics,topic_slug,' . $topic->id,
-    ]);
-
-    foreach ($validated as $key=>$field) {
-        if (!$request->has($key)) {
-            return response()->json(['error' => ucfirst(str_replace('_', ' ', $key)) . " is required, please insert this field"], 400);
+        if (!$topic) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Post not found.',
+            ], 404);
         }
-    }
-    $topic->update($validated);
-    
-    return response()->json([
-        'message' => 'topic updated successfully',
-        'brands' => $topic
-    ], 200);
-    }
 
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'chapter_id' => 'required|exists:chapters,id',
+            'topic_name' => 'required|string',
+            'order' => 'integer',
+            'topic_description' => 'string',
+            'topic_slug' => 'required|string|unique:topics',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // Update the post
+        $topic->update($validator->validated());
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Topic updated successfully.',
+            'data' => $topic,
+        ]);
+    }
     /**
      * Remove the specified resource from storage.
      */
@@ -85,7 +98,7 @@ class TopicController extends Controller
     {
         $topic = Topic::findOrFail($id);
         $topic->delete();
-    
+
         return response()->json(['message' => 'Topic deleted successfully.']);
     }
 }

@@ -32,7 +32,7 @@ class PostControllerApi extends Controller
             'topic_id' => 'required|exists:topics,id',
             'title' => 'required|string|max:255',
             'description' => 'required',
-            'author_id' => 'required|exists:users,id',
+            'author_id' => 'required',
             'status' => 'boolean',
         ]);
 
@@ -94,7 +94,7 @@ class PostControllerApi extends Controller
             'topic_id' => 'sometimes|exists:topics,id',
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes',
-            'author_id' => 'sometimes|exists:users,id',
+            'author_id' => 'sometimes',
             'status' => 'sometimes|boolean',
         ]);
 
