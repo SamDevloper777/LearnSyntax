@@ -22,7 +22,7 @@ class TopicController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator =Validator::make($request->all(),[
             'chapter_id' => 'required|exists:chapters,id',
             'topic_name' => 'required|string',
             'order' => 'integer',
@@ -30,17 +30,19 @@ class TopicController extends Controller
             'topic_slug' => 'required|string|unique:topics',
         ]);
 
-        foreach ($validated as $key => $field) {
-            if (!$request->has($key)) {
-                return response()->json(['error' => ucfirst(str_replace('_', ' ', $key)) . " is required, please insert this field"], 400);
-            }
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->errors(),
+            ], 422);
         }
-        $topic = Topic::create($validated);
+        $topic = Topic::create($validator->validated());
 
         return response()->json([
-            'message' => 'topic created successfully',
-            'topic' => $topic
-        ], 200);
+            'status' => 201,
+            'message' => 'topic created successfully.',
+            'data' => $topic,
+        ]);
     }
 
     /**
@@ -71,7 +73,7 @@ class TopicController extends Controller
             'chapter_id' => 'required|exists:chapters,id',
             'topic_name' => 'required|string',
             'order' => 'integer',
-            'topic_description' => 'string',
+            'topic_description' => 'nullable|string',
             'topic_slug' => 'required|string|unique:topics',
         ]);
 
