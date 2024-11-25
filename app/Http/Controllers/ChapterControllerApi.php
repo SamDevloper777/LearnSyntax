@@ -6,7 +6,7 @@ use App\Models\Chapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class ChapterController extends Controller
+class ChapterControllerApi extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -60,33 +60,43 @@ class ChapterController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request,  $id)
+    public function update(Request $request, $id)
     {
+        if (empty($request->all())) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'No data received. Ensure you are sending data correctly.',
+            ], 400);
+        }
+    
+        // Retrieve the course by ID
         $chapter = Chapter::findOrFail($id);
-
-        $validator = Validator::make($request->all(),[
-            'course_id' => 'required|exists:course_id',
+    
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'course_id' => 'required|exists:courses,id',
             'chapter_name' => 'required|string',
             'chapter_description' => 'required|string',
-            'chapter_slug' => 'required|string|unique:chapters,chapter_slug',
-            'order' => 'integer',
+            'chapter_slug' => 'required|string|unique:chapters,chapter_slug', 
+            'order' => 'required|integer', 
         ]);
-        
+    
         // Check for validation errors
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => 422,
-            'errors' => $validator->messages(),
-        ], 422);
-    }
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages(),
+            ], 422);
+        }
+    
+        // Update the course with validated data
         $chapter->update($validator->validated());
-
+    
         return response()->json([
             'status' => 200,
-            'message' => 'Chapter updated successfully',
+            'message' => 'chapter updated successfully',
             'data' => $chapter,
         ]);
-
     }
 
 
