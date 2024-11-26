@@ -17,7 +17,7 @@ class TopicController extends Controller
         $topic = Topic::with("chapter")->get();
         return response()->json([
             'message' => 'topic Fetched successfully',
-            'products' => $topic,
+            'topics' => $topic,
         ], 200);
     }
 

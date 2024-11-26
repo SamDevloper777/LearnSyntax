@@ -13,7 +13,11 @@ class ChapterController extends Controller
      */
     public function index()
     {
-       return response()->json(data:Chapter::all());
+        $chapter = Chapter::with("course")->get();
+        return response()->json([
+            'message' => 'chapter Fetched successfully',
+            'chapters' => $chapter,
+        ], 200);
     }
 
     /**

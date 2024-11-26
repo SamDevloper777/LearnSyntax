@@ -9,6 +9,17 @@ class Chapter extends Model
 {
     use HasFactory;
 
-    protected $guarded=[];
+    protected $fillable = [
+        'course_id',
+        'chapter_name',
+        'chapter_description',
+        'chapter_slug',
+        'order'
+       
+    ];
+
+    public function course(){
+        return $this->hasMany(Courses::class,"id","course_id");
+    }
 
 }
