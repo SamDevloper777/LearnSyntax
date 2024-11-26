@@ -13,4 +13,9 @@ class Topic extends Model
         'topic_description',
         'topic_slug',
     ];
+
+
+    public function chapter(){
+        return $this->hasMany(Chapter::class,"id","chapter_id");
+    }
 }

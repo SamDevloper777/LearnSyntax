@@ -14,7 +14,11 @@ class TopicController extends Controller
      */
     public function index()
     {
-        return response()->json(Topic::all());
+        $topic = Topic::with("chapter")->get();
+        return response()->json([
+            'message' => 'topic Fetched successfully',
+            'products' => $topic,
+        ], 200);
     }
 
     /**
