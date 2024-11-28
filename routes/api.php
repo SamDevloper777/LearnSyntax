@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthorControllerApi;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CoursesController;
@@ -21,4 +22,9 @@ Route::apiResource("chapter", ChapterController::class);
 Route::apiResource('courses',CoursesController::class);
 Route::apiResource('topic', TopicController::class);
 Route::apiResource('posts', PostControllerApi::class);
+
+Route::post('auth/register', [AuthController::class, 'register']);
+Route::post('auth/login', [AuthController::class, 'login']);
+ 
+ 
 
