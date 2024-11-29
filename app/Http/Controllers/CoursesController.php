@@ -56,7 +56,19 @@ class CoursesController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $courses = Courses::find($id);
+
+        if (!$courses) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Post not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'data' => $courses,
+        ]);
     }
 
     /**

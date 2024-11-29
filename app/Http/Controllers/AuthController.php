@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+
+
 use Tymon\JWTAuth\Facades\JWTAuth;
  
 class AuthController extends Controller
@@ -48,7 +49,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         
  
-        if ($token = JWTAuth::attempt($credentials)) {
+        if ($token =JWTAuth::attempt($credentials)) {
             return $this->respondWithToken($token);
         }
  
