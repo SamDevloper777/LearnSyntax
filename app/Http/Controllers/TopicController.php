@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Topic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use PhpParser\Node\Stmt\Foreach_;
+use Illuminate\Support\Str;
 
 class TopicController extends Controller
 {
@@ -78,7 +78,7 @@ class TopicController extends Controller
             'topic_name' => 'required|string',
             'order' => 'integer',
             'topic_description' => 'nullable|string',
-            'topic_slug' => 'required|string|unique:topics',
+            
         ]);
 
         if ($validator->fails()) {
@@ -89,6 +89,9 @@ class TopicController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
+
+        $validated = $validator->validated();
+    $validated["topic_slug"] = Str::slug($validated('topic_name'));
 
         // Update the post
         $topic->update($validator->validated());

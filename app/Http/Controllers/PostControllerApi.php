@@ -6,6 +6,7 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+
 class PostControllerApi extends Controller
 {
     /**
@@ -42,6 +43,11 @@ class PostControllerApi extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
+
+        $validated = $validator->validated();
+
+   
+
 
         // Create a new post
         $post = Post::create($validator->validated());
