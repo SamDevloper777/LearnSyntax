@@ -9,9 +9,7 @@ use Illuminate\Support\Str;
 
 class ChapterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
     public function index()
     {
         $chapter = Chapter::with("course")->get();
@@ -21,9 +19,7 @@ class ChapterController extends Controller
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request)
 {
     $validator = Validator::make($request->all(), [
@@ -54,17 +50,25 @@ class ChapterController extends Controller
 }
 
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        //
+          
+          $chapter = Chapter::with(['courses'])->find($id);
+
+          if (!$chapter) {
+              return response()->json([
+                  'status' => 404,
+                  'message' => 'Post not found.',
+              ], 404);
+          }
+  
+          return response()->json([
+              'status' => 200,
+              'data' => $chapter,
+          ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+   
     public function update(Request $request, $id)
     {
         if (empty($request->all())) {
@@ -74,10 +78,10 @@ class ChapterController extends Controller
             ], 400);
         }
     
-        // Retrieve the course by ID
+        
         $chapter = Chapter::findOrFail($id);
     
-        // Validate the request
+      
         $validator = Validator::make($request->all(), [
             'course_id' => 'required|exists:courses,id',
             'chapter_name' => 'required|string',
@@ -86,7 +90,7 @@ class ChapterController extends Controller
             'order' => 'required|integer', 
         ]);
     
-        // Check for validation errors
+       
         if ($validator->fails()) {
             return response()->json([
                 'status' => 422,
@@ -94,7 +98,7 @@ class ChapterController extends Controller
             ], 422);
         }
     
-        // Update the course with validated data
+        
         $chapter->update($validator->validated());
     
         return response()->json([
@@ -105,9 +109,7 @@ class ChapterController extends Controller
     }
 
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(string $id)
     {
         $chapter = Chapter::findOrFail($id);

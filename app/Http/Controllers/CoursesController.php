@@ -23,34 +23,33 @@ class CoursesController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'title' => 'required|string',
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string',
             'description' => 'required|max:225',
             'image' => 'nullable'
-    ]);
+        ]);
 
-    if ($validator->fails()) {
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages(),
+            ], 422);
+        }
+
+
+        $validated = $validator->validated();
+
+        $validated["course_slug"] = Str::slug($validated['title']);
+
+
+        $courses = Courses::create($validated);
+
         return response()->json([
-            'status' => 422,
-            'errors' => $validator->messages(),
-        ], 422);
+            'message' => 'Course created successfully',
+            'courses' => $courses,
+        ], 201);
     }
-
-
-    $validated = $validator->validated();
-
-    $validated["course_slug"] = Str::slug($validated['title']);
-
-
-
-    $courses = Courses::create($validated);
-
-    return response()->json([
-        'message' => 'Course created successfully',
-        'courses' => $courses,
-    ], 201);
-}
     /**
      * Display the specified resource.
      */
@@ -75,43 +74,109 @@ class CoursesController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-{
-    // Debug: Check if the request data is received correctly
-    if (empty($request->all())) {
+    {
+        // Debug: Check if the request data is received correctly
+        if (empty($request->all())) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'No data received. Ensure you are sending data correctly.',
+            ], 400);
+        }
+
+        // Retrieve the course by ID
+        $course = Courses::findOrFail($id);
+
+        // Initialize an array to hold validated fields
+        $validatedData = [];
+
+        // Validate the title if it's present in the request
+        if ($request->has('title')) {
+            $validator = Validator::make($request->only('title'), [
+                'title' => 'required|string',
+            ]);
+
+            // If validation fails for the title
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 422,
+                    'errors' => $validator->messages(),
+                ], 422);
+            }
+
+            // Add validated title to the data array
+            $request->input("title");
+            $title = $request->input('title');
+            $validatedData['title'] = $title;
+            $validatedData['course_slug'] = Str::slug($title);
+        }
+
+        // Validate the description if it's present in the request
+        if ($request->has('description')) {
+            $validator = Validator::make($request->only('description'), [
+                'description' => 'required|max:225',
+            ]);
+
+            // If validation fails for the description
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 422,
+                    'errors' => $validator->messages(),
+                ], 422);
+            }
+
+            // Add validated description to the data array
+            $validatedData['description'] = $request->input('description');
+        }
+
+        // Validate the image if it's present in the request
+        if ($request->has('image')) {
+            // You can add validation logic for the image here if needed
+            // For example, to validate image type or size
+            $validator = Validator::make($request->only('image'), [
+                'image' => 'nullable|image|max:2048',  // Example validation rule for image
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 422,
+                    'errors' => $validator->messages(),
+                ], 422);
+            }
+
+            // Add validated image to the data array
+            $validatedData['image'] = $request->input('image');
+        }
+
+        // Validate the course_slug if it's present in the request
+        if ($request->has('course_slug')) {
+            $validator = Validator::make($request->only('course_slug'), [
+                'course_slug' => 'required|string|unique:courses,course_slug,' . $course->id,
+            ]);
+
+            // If validation fails for the course_slug
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 422,
+                    'errors' => $validator->messages(),
+                ], 422);
+            }
+
+            // Add validated course_slug to the data array
+            $validatedData['course_slug'] = $request->input('course_slug');
+        }
+
+        // Update only the fields that are present and validated
+        if (!empty($validatedData)) {
+            $course->update($validatedData);
+        }
+
+        // Return response
         return response()->json([
-            'status' => 400,
-            'message' => 'No data received. Ensure you are sending data correctly.',
-        ], 400);
+            'status' => 200,
+            'message' => 'Course updated successfully',
+            'data' => $course,
+        ]);
     }
-
-    // Retrieve the course by ID
-    $courses = Courses::findOrFail($id);
-
-    // Validate the request
-    $validator = Validator::make($request->all(), [
-        'title' => 'required|string',
-        'description' => 'required|max:225',
-        'image' => 'nullable',
-        'course_slug' => 'required|string|unique:courses,course_slug,' . $courses->id,
-    ]);
-
-    // Check for validation errors
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => 422,
-            'errors' => $validator->messages(),
-        ], 422);
-    }
-
-    // Update the course with validated data
-    $courses->update($validator->validated());
-
-    return response()->json([
-        'status' => 200,
-        'message' => 'Course updated successfully',
-        'data' => $courses,
-    ]);
-}
 
 
 

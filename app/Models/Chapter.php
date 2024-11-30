@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Chapter extends Model
 {
     use HasFactory;
+    public function courses(){
+        return $this->belongsTo(courses::class);
+    }
 
     protected $fillable = [
         'course_id',
