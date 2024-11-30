@@ -17,7 +17,15 @@ class CoursesController extends Controller
      */
     public function index()
     {
-        return response()->json(Courses::all());
+        $courses = Courses::all();
+
+        $couresData=[
+            'title'=>$courses->title,
+            'descriptions'=>$courses->descriptions,
+            'images'=>$courses->images,
+        ];
+        
+        return response()->json($couresData);
     }
 
     /**
