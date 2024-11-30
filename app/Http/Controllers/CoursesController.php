@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Courses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 use function Laravel\Prompts\error;
 
@@ -26,8 +27,7 @@ class CoursesController extends Controller
     $validator = Validator::make($request->all(), [
         'title' => 'required|string',
             'description' => 'required|max:225',
-            'image' => 'nullable',
-            'course_slug' => 'required|string|unique:courses,course_slug,'
+            'image' => 'nullable'
     ]);
 
     if ($validator->fails()) {
@@ -39,6 +39,9 @@ class CoursesController extends Controller
 
 
     $validated = $validator->validated();
+
+    $validated["course_slug"] = Str::slug($validated['title']);
+
 
 
     $courses = Courses::create($validated);
@@ -53,7 +56,19 @@ class CoursesController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $courses = Courses::find($id);
+
+        if (!$courses) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Post not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'data' => $courses,
+        ]);
     }
 
     /**

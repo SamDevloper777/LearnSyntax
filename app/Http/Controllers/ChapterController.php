@@ -30,7 +30,6 @@ class ChapterController extends Controller
         'course_id' => 'required|exists:courses,id',
         'chapter_name' => 'required|string',
         'chapter_description' => 'required|string',
-        'chapter_slug' => 'required|string|unique:chapters,chapter_slug', 
         'order' => 'required|integer', 
     ]);
 
