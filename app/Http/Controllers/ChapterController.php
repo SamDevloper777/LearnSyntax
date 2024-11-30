@@ -29,6 +29,7 @@ class ChapterController extends Controller
     $validator = Validator::make($request->all(), [
         'course_id' => 'required|exists:courses,id',
         'chapter_name' => 'required|string',
+        'chapter_slug'=> 'required',
         'chapter_description' => 'required|string',
         'order' => 'required|integer', 
     ]);
