@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('course_id')->constrained()->onDelete('cascade');
             $table->string('chapter_name');
-            $table->text('chapter_description');
+            $table->text('chapter_description')->nullable();
             $table->string('chapter_slug')->unique();
-            $table->integer('order');
+            $table->integer('order')->nullable();
             $table->timestamps();
         });
     }

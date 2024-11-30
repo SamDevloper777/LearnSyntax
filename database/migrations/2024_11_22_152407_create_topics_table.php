@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('chapter_id')->constrained()->onDelete('cascade');
             $table->string('topic_name');
-            $table->integer('order')->default(0);
-            $table->text('topic_description');
+            $table->integer('order')->default(0)->nullable();
+            $table->text('topic_description')->nullable();
             $table->string('topic_slug')->unique();
             $table->timestamps();
         });
