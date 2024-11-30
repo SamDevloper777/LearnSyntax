@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ChapterController extends Controller
 {
@@ -42,9 +43,18 @@ class ChapterController extends Controller
 
     
     $validated = $validator->validated();
+    
 
     
-    $chapter = Chapter::create($validated);
+    $chapter = Chapter::create([
+        'course_id' => $validated['course_id'],
+        'chapter_name' => $validated['chapter_name'],
+        'chapter_description' => $validated['chapter_description'],
+        'chapter_slug' =>Str::slug($validated['chapter_slug']),
+        'order' => $validated['order'],  // Assuming 'order' is a numeric field in the database table. Replace this with the actual field name if it's different.
+]);
+
+
 
     return response()->json([
         'message' => 'Chapter created successfully',
