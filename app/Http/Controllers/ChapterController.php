@@ -25,6 +25,7 @@ class ChapterController extends Controller
     $validator = Validator::make($request->all(), [
         'course_id' => 'required|exists:courses,id',
         'chapter_name' => 'required|string',
+        'chapter_slug'=> 'required',
         'chapter_description' => 'required|string',
         'order' => 'required|integer', 
     ]);
@@ -38,10 +39,18 @@ class ChapterController extends Controller
 
     
     $validated = $validator->validated();
-    $validated["chapter_slug"] = Str::slug($validated('chapter_name'));
+    
 
     
-    $chapter = Chapter::create($validated);
+    $chapter = Chapter::create([
+        'course_id' => $validated['course_id'],
+        'chapter_name' => $validated['chapter_name'],
+        'chapter_description' => $validated['chapter_description'],
+        'chapter_slug' =>Str::slug($validated['chapter_slug']),
+        'order' => $validated['order'],  // Assuming 'order' is a numeric field in the database table. Replace this with the actual field name if it's different.
+]);
+
+
 
     return response()->json([
         'message' => 'Chapter created successfully',
