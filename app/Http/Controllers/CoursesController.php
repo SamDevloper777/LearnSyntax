@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Courses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
 use Illuminate\Support\Str;
 
 use function Laravel\Prompts\error;
@@ -27,7 +28,7 @@ class CoursesController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
             'description' => 'required|max:225',
-            'image' => 'nullable'
+            'image' => 'required|image|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -39,10 +40,13 @@ class CoursesController extends Controller
 
 
         $validated = $validator->validated();
+        $image = $request->file('image');
+        $imageName = time().'.'.$image->getClientOriginalExtension();
+        $image->move(public_path('images'),$imageName);
+        $data['image'] = $imageName;
 
         $validated["course_slug"] = Str::slug($validated['title']);
-
-
+        $validated['image'] =  $imageName;
         $courses = Courses::create($validated);
 
         return response()->json([
@@ -133,7 +137,7 @@ class CoursesController extends Controller
             // You can add validation logic for the image here if needed
             // For example, to validate image type or size
             $validator = Validator::make($request->only('image'), [
-                'image' => 'nullable|image|max:2048',  // Example validation rule for image
+                'image' => 'required|image|max:2048',  // Example validation rule for image
             ]);
 
             if ($validator->fails()) {
