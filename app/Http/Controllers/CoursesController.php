@@ -17,15 +17,27 @@ class CoursesController extends Controller
      */
     public function index()
     {
-        $courses = Courses::all();
+        $courses = Courses::get();
 
-        $couresData=[
-            'title'=>$courses->title,
-            'descriptions'=>$courses->descriptions,
-            'images'=>$courses->images,
-        ];
+        foreach ($courses as $course){
+           $CourseData[]= [
+            'id'=>$course->id,
+            'title'=>$course->title,
+            'description'=>$course->description,
+            'images'=>$course->images,
+            ];
+            
+        }
+
         
-        return response()->json($couresData);
+        
+
+        return response()->json([
+            'status' => 200,
+            'data' => $CourseData,
+        ]);
+        
+        
     }
 
     /**
