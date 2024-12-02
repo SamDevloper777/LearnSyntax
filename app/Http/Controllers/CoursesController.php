@@ -24,14 +24,10 @@ class CoursesController extends Controller
             'id'=>$course->id,
             'title'=>$course->title,
             'description'=>$course->description,
-            'images'=>$course->images,
+            'image'=>$course->image,
             ];
             
         }
-
-        
-        
-
         return response()->json([
             'status' => 200,
             'data' => $CourseData,
@@ -62,8 +58,8 @@ class CoursesController extends Controller
         $validated = $validator->validated();
         $image = $request->file('image');
         $imageName = time().'.'.$image->getClientOriginalExtension();
-        $image->move(public_path('images'),$imageName);
-        $data['image'] = $imageName;
+        $image->storeAs('images',$imageName,'public');
+        $data['image'] =  'images/'.$imageName;
 
         $validated["course_slug"] = Str::slug($validated['title']);
         $validated['image'] =  $imageName;
