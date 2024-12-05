@@ -23,7 +23,7 @@ class ChapterController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => 'required',
             'chapter_name' => 'required|string',
             'chapter_description' => 'required|string',
             'order' => 'required|integer',
@@ -47,7 +47,7 @@ class ChapterController extends Controller
 
         $chapter = Chapter::create($validated);
 
-         
+
 
         return response()->json([
             'message' => 'Chapter created successfully',
@@ -58,7 +58,7 @@ class ChapterController extends Controller
 
     public function show(string $slug)
     {
-        $chapter = Chapter::with(['course'])->where('chapter_slug', $slug)->first();
+        $chapter = Chapter::where(['course'])->where('chapter_slug', $slug)->first();
 
         if (!$chapter) {
             return response()->json([
