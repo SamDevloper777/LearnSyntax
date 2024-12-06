@@ -27,11 +27,11 @@ class TopicController extends Controller
     public function store(Request $request)
     {
         $validator =Validator::make($request->all(),[
-            'chapter_id' => 'required|exists:chapters,id',
+            'chapter_id' => 'required',
             'topic_name' => 'required|string',
             'order' => 'integer',
             'topic_description' => 'nullable|string',
-            'topic_slug' => 'required|string|unique:topics',
+           
         ]);
 
         if ($validator->fails()) {
@@ -40,7 +40,14 @@ class TopicController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-        $topic = Topic::create($validator->validated());
+        $validated = $validator->validated();
+        
+
+        $validated["topic_slug"] = Str::slug($validated['topic_name']);
+
+
+
+        $topic = Topic::create($validated);
 
         return response()->json([
             'status' => 201,
@@ -52,10 +59,23 @@ class TopicController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $slug)
     {
-        //
+        $topic = Topic::where(['chapter'])->where('topic_slug', $slug)->first();
+
+        if (!$topic) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'topic not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'data' => $topic,
+        ]);
     }
+
 
     /**
      * Update the specified resource in storage.

@@ -15,7 +15,7 @@ class ChapterController extends Controller
         $chapter = Chapter::with("course")->get();
         return response()->json([
             'message' => 'chapter Fetched successfully',
-            'chapters' => $chapter,
+            'data' => $chapter,
         ], 200);
     }
 
